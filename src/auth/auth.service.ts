@@ -15,13 +15,17 @@ export class AuthService {
   ) {}
 
   async login(loginDto: LoginDto) {
-    const staff = await this.staffService.findByEmail(loginDto.email);
+    const normalizedEmail = loginDto.email.trim().toLowerCase();
+    const staff = await this.staffService.findByEmail(normalizedEmail);
 
     if (!staff) {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const isPasswordValid = await bcrypt.compare(loginDto.password, staff.password);
+    const isPasswordHash = /^\$2[aby]\$/.test(staff.password);
+    const isPasswordValid = isPasswordHash
+      ? await bcrypt.compare(loginDto.password, staff.password)
+      : loginDto.password === staff.password;
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid email or password');

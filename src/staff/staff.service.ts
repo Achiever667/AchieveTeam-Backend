@@ -1,23 +1,24 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { join } from 'path';
+import { existsSync, readFileSync } from 'fs';
 import { appConfig } from '../config/app.config';
-import { readJsonFile } from '../utils/file-storage.util';
 import { Staff, StaffSafe } from './interfaces/staff.interface';
 
 @Injectable()
-export class StaffService implements OnModuleInit {
+export class StaffService {
   private staff: Staff[] = [];
-  private readonly filePath = join(appConfig.dataDirectory, 'staff.json');
 
-  async onModuleInit(): Promise<void> {
-    this.staff = await readJsonFile<Staff[]>(this.filePath);
+  constructor() {
+    const primaryFilePath = join(appConfig.dataDirectory, 'staffs.json');
+    const fallbackFilePath = join(appConfig.dataDirectory, 'staff.json');
+    const filePath = existsSync(primaryFilePath)
+      ? primaryFilePath
+      : fallbackFilePath;
+    const file = readFileSync(filePath, 'utf-8');
+    this.staff = JSON.parse(file);
   }
 
-  async findByEmail(email: string): Promise<Staff | undefined> {
-    if (this.staff.length === 0) {
-      await this.onModuleInit();
-    }
-
+  findByEmail(email: string): Staff | undefined {
     return this.staff.find(
       (member) => member.email.toLowerCase() === email.toLowerCase(),
     );
