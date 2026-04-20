@@ -12,7 +12,7 @@ export async function configureNestApp(expressApp?: Express) {
     : await NestFactory.create(AppModule);
 
   app.enableCors({
-  origin: 'http://localhost:5173', 'https://achieve-team-backend.vercel.app'
+  origin: "'http://localhost:5173', 'https://achieve-team-backend.vercel.app'",
   credentials: true,
 });
   app.useGlobalPipes(
