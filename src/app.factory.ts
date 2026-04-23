@@ -14,7 +14,7 @@ export async function configureNestApp(expressApp?: Express) {
   app.enableCors({
     origin: [
       'http://localhost:5173',
-      'https://achieve-team-backend.vercel.app',
+      'https://achieve-team-frontend-task.vercel.app',
     ],
     credentials: true,
   });
