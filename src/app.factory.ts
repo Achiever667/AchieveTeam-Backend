@@ -11,13 +11,22 @@ export async function configureNestApp(expressApp?: Express) {
     ? await NestFactory.create(AppModule, adapter)
     : await NestFactory.create(AppModule);
 
-  app.enableCors({
-    origin: [
+app.enableCors({
+  origin: (origin, callback) => {
+    const allowedOrigins = [
       'http://localhost:5173',
-      'https://achieve-team-backend.vercel.app',
-    ],
-    credentials: true,
-  });
+      'http://127.0.0.1:5173',
+      'https://achieve-team-frontend-task.vercel.app',
+    ];
+
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+});
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
