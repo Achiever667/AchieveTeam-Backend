@@ -24,6 +24,10 @@ export class StaffService {
     );
   }
 
+  findById(id: number): Staff | undefined {
+    return this.staff.find((member) => member.id === id);
+  }
+
   sanitizeStaff(staff: Staff): StaffSafe {
     const { password: _password, ...safeStaff } = staff;
     return safeStaff;

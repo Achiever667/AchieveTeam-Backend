@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { StaffService } from '../staff/staff.service';
@@ -49,5 +53,15 @@ export class AuthService {
     return {
       message: 'Logout successful',
     };
+  }
+
+  getProfile(userId: number) {
+    const staff = this.staffService.findById(userId);
+
+    if (!staff) {
+      throw new NotFoundException('Authenticated user not found');
+    }
+
+    return this.staffService.sanitizeStaff(staff);
   }
 }

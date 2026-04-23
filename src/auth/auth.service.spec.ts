@@ -10,6 +10,7 @@ describe('AuthService', () => {
   let service: AuthService;
   let staffService: {
     findByEmail: jest.Mock;
+    findById: jest.Mock;
     sanitizeStaff: jest.Mock;
   };
   let jwtService: {
@@ -22,6 +23,7 @@ describe('AuthService', () => {
   beforeEach(async () => {
     staffService = {
       findByEmail: jest.fn(),
+      findById: jest.fn(),
       sanitizeStaff: jest.fn((staff) => ({
         id: staff.id,
         email: staff.email,
@@ -128,5 +130,25 @@ describe('AuthService', () => {
         password: 'wrong-password',
       }),
     ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('returns the authenticated user profile without the password', () => {
+    staffService.findById.mockReturnValue({
+      id: 7,
+      name: 'Mary Joe',
+      email: 'mary@example.com',
+      role: 'admin',
+      password: 'secret',
+    });
+
+    const result = service.getProfile(7);
+
+    expect(staffService.findById).toHaveBeenCalledWith(7);
+    expect(result).toEqual({
+      id: 7,
+      name: 'Mary Joe',
+      email: 'mary@example.com',
+      role: 'admin',
+    });
   });
 });

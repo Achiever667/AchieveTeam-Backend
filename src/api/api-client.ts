@@ -5,15 +5,18 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   accessToken: string;
-  user: {
-    email: string;
-    role: string;
-    name?: string;
-  };
+  user: UserProfile;
 }
 
 export interface LogoutResponse {
   message: string;
+}
+
+export interface UserProfile {
+  id: number;
+  email: string;
+  role: string;
+  name?: string;
 }
 
 export interface DeleteLoanResponse {
@@ -74,6 +77,12 @@ export class LoanApiClient {
   async logout(): Promise<LogoutResponse> {
     return this.request<LogoutResponse>('/logout', {
       method: 'POST',
+      requiresAuth: true,
+    });
+  }
+
+  async getProfile(): Promise<UserProfile> {
+    return this.request<UserProfile>('/profile', {
       requiresAuth: true,
     });
   }

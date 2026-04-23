@@ -1,11 +1,15 @@
 import {
   Body,
   Controller,
+  Get,
   Headers,
+  Req,
   Post,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { Public } from '../common/decorators/public.decorator';
+import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 
@@ -28,5 +32,10 @@ export class AuthController {
     }
 
     return this.authService.logout(token);
+  }
+
+  @Get(['profile', 'api/profile'])
+  profile(@Req() request: Request & { user: AuthenticatedUser }) {
+    return this.authService.getProfile(request.user.id);
   }
 }
