@@ -13,16 +13,15 @@ export async function configureNestApp(expressApp?: Express) {
 
 app.enableCors({
   origin: (origin, callback) => {
-    const allowedOrigins = [
-      'http://localhost:5173',
-      'http://127.0.0.1:5173',
-      'https://achieve-team-frontend-task.vercel.app',
-    ];
-
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (
+      !origin || 
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1') ||
+      origin.endsWith('.vercel.app')
+    ) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   },
   credentials: true,
