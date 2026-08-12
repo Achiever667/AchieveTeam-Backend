@@ -1,0 +1,293 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum Role {
+  USER
+  STAFF
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum LoanStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  ACTIVE
+  OVERDUE
+  COMPLETED
+  CANCELLED
+}
+
+enum LoanScheduleStatus {
+  PENDING
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+}
+
+enum RepaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REVERSED
+}
+
+enum TransactionType {
+  LOAN_DISBURSEMENT
+  REPAYMENT
+  REFUND
+  ADJUSTMENT
+  FEE
+  INTEREST
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REVERSED
+}
+
+enum NotificationType {
+  LOAN_SUBMITTED
+  LOAN_UNDER_REVIEW
+  LOAN_APPROVED
+  LOAN_REJECTED
+  LOAN_DISBURSED
+  REPAYMENT_RECEIVED
+  REPAYMENT_DUE
+  REPAYMENT_OVERDUE
+  LOAN_COMPLETED
+  SYSTEM
+}
+
+enum AuditAction {
+  LOGIN
+  LOGOUT
+  USER_CREATED
+  USER_UPDATED
+  ROLE_CHANGED
+  LOAN_CREATED
+  LOAN_APPROVED
+  LOAN_REJECTED
+  LOAN_CANCELLED
+  LOAN_DISBURSED
+  REPAYMENT_CREATED
+  REPAYMENT_REVERSED
+  USER_SUSPENDED
+}
+
+// ============================================================================
+// USER & AUTHENTICATION
+// ============================================================================
+
+model User {
+  id                String      @id @default(uuid())
+  name              String
+  email             String      @unique
+  phone             String?
+  passwordHash      String
+  role              Role        @default(USER)
+  department        String?
+  status            UserStatus  @default(ACTIVE)
+  emailVerifiedAt   DateTime?
+  lastLoginAt       DateTime?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  loans             Loan[]
+  repayments        Repayment[]
+  refreshTokens     RefreshToken[]
+  notifications     Notification[]
+  auditLogs         AuditLog[]    @relation("auditUser")
+  approvedLoans     Loan[]        @relation("approvedBy")
+  rejectedLoans     Loan[]        @relation("rejectedBy")
+
+  @@index([email])
+  @@index([status])
+  @@index([role])
+}
+
+model RefreshToken {
+  id                String      @id @default(uuid())
+  hashedToken       String      @unique
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+  expiresAt         DateTime
+  revokedAt         DateTime?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@index([userId])
+}
+
+// ============================================================================
+// LOANS
+// ============================================================================
+
+model Loan {
+  id                  String          @id @default(uuid())
+  loanNumber          String          @unique
+  user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId              String
+  amount              Decimal         @db.Decimal(15, 2)
+  interestRate        Decimal         @db.Decimal(5, 2)
+  tenureMonths        Int
+  status              LoanStatus      @default(PENDING)
+  purpose             String?
+  approvedBy          User?           @relation("approvedBy", fields: [approvedById], references: [id])
+  approvedById        String?
+  approvedAt          DateTime?
+  rejectedBy          User?           @relation("rejectedBy", fields: [rejectedById], references: [id])
+  rejectedById        String?
+  rejectedAt          DateTime?
+  rejectionReason     String?
+  disbursedAt         DateTime?
+  completedAt         DateTime?
+  cancelledAt         DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  // Relations
+  schedules           LoanSchedule[]
+  repayments          Repayment[]
+  transactions        Transaction[]
+  notifications       Notification[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model LoanSchedule {
+  id                String              @id @default(uuid())
+  loan              Loan                @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  loanId            String
+  installmentNumber Int
+  dueDate           DateTime
+  principalAmount   Decimal             @db.Decimal(15, 2)
+  interestAmount    Decimal             @db.Decimal(15, 2)
+  totalAmount       Decimal             @db.Decimal(15, 2)
+  amountPaid        Decimal             @db.Decimal(15, 2) @default(0)
+  balance           Decimal             @db.Decimal(15, 2)
+  status            LoanScheduleStatus  @default(PENDING)
+  paidAt            DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([loanId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+// ============================================================================
+// REPAYMENTS & TRANSACTIONS
+// ============================================================================
+
+model Repayment {
+  id                String            @id @default(uuid())
+  loan              Loan              @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  loanId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+  amount            Decimal           @db.Decimal(15, 2)
+  paymentReference  String            @unique
+  paymentMethod     String            @default("BANK_TRANSFER")
+  status            RepaymentStatus   @default(PENDING)
+  paidAt            DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relations
+  transactions      Transaction[]
+
+  @@index([loanId])
+  @@index([userId])
+  @@index([status])
+}
+
+model Transaction {
+  id                String            @id @default(uuid())
+  loan              Loan              @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  loanId            String
+  repayment         Repayment?        @relation(fields: [repaymentId], references: [id], onDelete: SetNull)
+  repaymentId       String?
+  amount            Decimal           @db.Decimal(15, 2)
+  type              TransactionType
+  status            TransactionStatus @default(PENDING)
+  description       String?
+  reference         String            @unique
+  metadata          Json?
+  reversedAt        DateTime?
+  reversedBy        String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([loanId])
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// NOTIFICATIONS & AUDIT
+// ============================================================================
+
+model Notification {
+  id                String            @id @default(uuid())
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+  loan              Loan?             @relation(fields: [loanId], references: [id], onDelete: SetNull)
+  loanId            String?
+  type              NotificationType
+  title             String
+  message           String
+  isRead            Boolean           @default(false)
+  readAt            DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id                String            @id @default(uuid())
+  user              User              @relation("auditUser", fields: [userId], references: [id], onDelete: SetNull)
+  userId            String?
+  action            AuditAction
+  entity            String
+  entityId          String?
+  metadata          Json?
+  ipAddress         String?
+  userAgent         String?
+  createdAt         DateTime          @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
