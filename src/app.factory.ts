@@ -1,9 +1,13 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
+import helmet from 'helmet';
 import express, { Express } from 'express';
+import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { appConfig } from './config/app.config';
+import { PrismaService } from './database/prisma.service';
 
 export async function configureNestApp(expressApp?: Express) {
   const adapter = expressApp ? new ExpressAdapter(expressApp) : undefined;
@@ -32,9 +36,17 @@ app.enableCors({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
   );
+
+  // Global exception filter
   app.useGlobalFilters(new GlobalExceptionFilter());
+
+  // Set global API prefix
+  app.setGlobalPrefix('api/v1');
 
   await app.init();
   return app;
@@ -43,3 +55,4 @@ app.enableCors({
 export function createExpressApp() {
   return express();
 }
+

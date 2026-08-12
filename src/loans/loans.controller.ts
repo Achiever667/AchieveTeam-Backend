@@ -9,7 +9,7 @@ import {
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { QueryLoansDto } from './dto/query-loans.dto';
+import { LoanFilterDto } from '../common/dto/loan-filter.dto';
 import { LoansService } from './loans.service';
 
 @Controller()
@@ -18,10 +18,10 @@ export class LoansController {
 
   @Get('loans')
   getLoans(
-    @Query() query: QueryLoansDto,
+    @Query() query: LoanFilterDto,
     @Req() request: { user: AuthenticatedUser },
   ) {
-    return this.loansService.getLoans(request.user.role, query.status);
+    return this.loansService.getLoans(request.user.role, query);
   }
 
   @Get('loans/expired')
