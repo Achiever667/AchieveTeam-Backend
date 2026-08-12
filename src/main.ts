@@ -1,6 +1,6 @@
-import { swaggerConfig,  swaggerCustomOptions } from './config/swagger.config';
+import { swaggerConfig, swaggerCustomOptions } from './config';
 import { SwaggerModule } from '@nestjs/swagger';
-import { appConfig } from './config/app.config';
+import { appConfig } from './config';
 import { configureNestApp } from './app.factory';
 
 async function bootstrap() {

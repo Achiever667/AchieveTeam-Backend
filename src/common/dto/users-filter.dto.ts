@@ -16,7 +16,5 @@ export class UsersFilterDto extends PaginationDto {
   @IsString()
   department?: string;
 
-  @IsOptional()
-  @IsString()
-  search?: string;
+  // `search` is provided by PaginationDto; do not redeclare here.
 }

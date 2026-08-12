@@ -1,6 +1,6 @@
 import { IsOptional, IsEnum, IsString, IsUUID } from 'class-validator';
 import { PaginationDto } from './pagination.dto';
-import { RepaymentStatus } from '../enums/repayment-status.enum';
+import { RepaymentStatus } from '../enums';
 
 export class RepaymentsFilterDto extends PaginationDto {
   @IsOptional()
@@ -19,7 +19,5 @@ export class RepaymentsFilterDto extends PaginationDto {
   @IsString()
   dateTo?: string;
 
-  @IsOptional()
-  @IsString()
   // `search` is provided by PaginationDto; do not redeclare here.
 }

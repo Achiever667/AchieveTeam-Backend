@@ -64,4 +64,6 @@ export const appConfig = {
     anonKey: process.env.SUPABASE_ANON_KEY,
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
   },
+  // legacy data directory for JSON imports (used during migration)
+  dataDirectory: join(process.cwd(), 'data'),
 };
