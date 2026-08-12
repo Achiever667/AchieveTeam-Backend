@@ -1,4 +1,4 @@
-import { swaggerConfig, swaggerCustomOptions } from './config/swagger.config';
+import { swaggerConfig,  swaggerCustomOptions } from './config/swagger.config';
 import { SwaggerModule } from '@nestjs/swagger';
 import { appConfig } from './config/app.config';
 import { configureNestApp } from './app.factory';

@@ -1,4 +1,4 @@
-import { PrismaClient, Role, UserStatus } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -19,9 +19,9 @@ async function main() {
       email: 'superadmin@example.com',
       phone: '+1234567890',
       passwordHash: hashedPassword,
-      role: Role.SUPER_ADMIN,
+      role: 'SUPER_ADMIN',
       department: 'Management',
-      status: UserStatus.ACTIVE,
+      status: 'ACTIVE',
       emailVerifiedAt: new Date(),
     },
   });
@@ -33,9 +33,9 @@ async function main() {
       email: 'admin@example.com',
       phone: '+1234567891',
       passwordHash: hashedPassword,
-      role: Role.ADMIN,
+      role: 'ADMIN',
       department: 'Operations',
-      status: UserStatus.ACTIVE,
+      status: 'ACTIVE',
       emailVerifiedAt: new Date(),
     },
   });
@@ -47,9 +47,9 @@ async function main() {
       email: 'staff@example.com',
       phone: '+1234567892',
       passwordHash: hashedPassword,
-      role: Role.STAFF,
+      role: 'STAFF',
       department: 'Loan Operations',
-      status: UserStatus.ACTIVE,
+      status: 'ACTIVE',
       emailVerifiedAt: new Date(),
     },
   });
@@ -61,8 +61,8 @@ async function main() {
       email: 'john@example.com',
       phone: '+1234567893',
       passwordHash: hashedPassword,
-      role: Role.USER,
-      status: UserStatus.ACTIVE,
+      role: 'USER',
+      status: 'ACTIVE',
       emailVerifiedAt: new Date(),
     },
   });

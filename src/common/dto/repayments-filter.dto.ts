@@ -21,5 +21,5 @@ export class RepaymentsFilterDto extends PaginationDto {
 
   @IsOptional()
   @IsString()
-  search?: string;
+  // `search` is provided by PaginationDto; do not redeclare here.
 }

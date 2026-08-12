@@ -6,12 +6,7 @@ const config = new DocumentBuilder()
     'Production-ready loan management backend with PostgreSQL, Prisma, JWT auth, and role-based access control',
   )
   .setVersion('1.0.0')
-  .setContact(
-    {
-      name: 'Support',
-      email: 'support@example.com',
-    },
-  )
+  .setContact('Support', '', 'support@example.com')
   .setLicense('UNLICENSED', '')
   .addBearerAuth(
     {
