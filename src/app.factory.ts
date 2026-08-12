@@ -15,35 +15,22 @@ export async function configureNestApp(expressApp?: Express) {
     ? await NestFactory.create(AppModule, adapter)
     : await NestFactory.create(AppModule);
 
-  const prismaService = app.get(PrismaService);
-  await prismaService.enableShutdownHooks(app);
+app.enableCors({
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'https://achieve-team-frontend-task.vercel.app',
+    ];
 
-  // Security: Helmet middleware
-  app.use(helmet());
-
-  // Request ID middleware
-  app.use((req, res, next) => {
-    req.id = req.headers['x-request-id'] as string || uuidv4();
-    res.setHeader('x-request-id', req.id);
-    next();
-  });
-
-  // CORS configuration
-  const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    appConfig.urls.frontend,
-    appConfig.urls.current,
-  ].filter(Boolean);
-
-  app.enableCors({
-    origin: allowedOrigins,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
-
-  // Global validation pipe
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+});
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
