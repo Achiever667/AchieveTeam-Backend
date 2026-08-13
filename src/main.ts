@@ -8,7 +8,7 @@ async function bootstrap() {
 
   // Setup Swagger documentation
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, document, swaggerCustomOptions);
+  SwaggerModule.setup('docs', app, document, swaggerCustomOptions);
 
   await app.listen(appConfig.port, () => {
     console.log(`🚀 Server running on http://localhost:${appConfig.port}`);

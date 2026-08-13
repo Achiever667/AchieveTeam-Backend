@@ -10,6 +10,7 @@ import { PrismaService } from '../database/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { RefreshTokenService } from './services/refresh-token.service';
+import { Role } from 'src/common/enums';
 
 @Injectable()
 export class AuthService {
@@ -95,7 +96,7 @@ export class AuthService {
     const jwtPayload: JwtPayload = {
       sub: user.id,
       email: user.email,
-      role: user.role,
+      role: user.role as Role,
     };
 
     const accessToken = await this.jwtService.signAsync(jwtPayload, {
