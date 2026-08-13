@@ -34,7 +34,7 @@ async function importStaffs() {
       where: { email: s.email },
       update: {
         name: s.name,
-        role,
+        role: role as any,
         passwordHash,
       },
       create: {
@@ -42,7 +42,7 @@ async function importStaffs() {
         email: s.email,
         phone: null,
         passwordHash,
-        role,
+        role: role as any,
         department: 'Staff',
         status: 'ACTIVE',
         emailVerifiedAt: new Date(),

@@ -55,4 +55,3 @@ app.enableCors({
 export function createExpressApp() {
   return express();
 }
-

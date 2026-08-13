@@ -29,7 +29,5 @@ export class LoanFilterDto extends PaginationDto {
   @IsString()
   dateTo?: string;
 
-  @IsOptional()
-  @IsString()
   // `search` is provided by PaginationDto; do not redeclare here.
 }

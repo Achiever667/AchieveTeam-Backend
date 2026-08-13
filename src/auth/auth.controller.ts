@@ -4,8 +4,7 @@ import { Request } from 'express';
 import { Public } from '../common/decorators/public.decorator';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
-import { RefreshDto } from './dto/refresh.dto';
+import { LoginDto, RefreshDto } from './dto';
 
 @ApiTags('Auth')
 @Controller('auth')
