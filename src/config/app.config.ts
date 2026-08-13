@@ -14,10 +14,7 @@ const developmentUrl = process.env.DEV_APP_URL ?? 'http://localhost:3000';
 const productionUrl =
   process.env.PROD_APP_URL ?? 'https://your-project.vercel.app';
 
-/**
- * Validate required environment variables
- * Throws error if required vars are missing in production
- */
+
 function validateEnv() {
   const required = ['JWT_SECRET', 'JWT_REFRESH_SECRET'];
   
@@ -64,6 +61,5 @@ export const appConfig = {
     anonKey: process.env.SUPABASE_ANON_KEY,
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
   },
-  // legacy data directory for JSON imports (used during migration)
   dataDirectory: join(process.cwd(), 'data'),
 };

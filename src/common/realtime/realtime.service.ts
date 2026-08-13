@@ -38,7 +38,7 @@ export class RealtimeService {
         type: type as any,
         title,
         message,
-        metadata: meta ? meta : undefined,
+        metadata: meta || null,
       },
     });
 
